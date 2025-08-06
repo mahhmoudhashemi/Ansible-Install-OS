@@ -1,0 +1,37 @@
+- name: Deploy Ubuntu VM on ESXi
+  hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Create Ubuntu Virtual Machine
+      community.vmware.vmware_guest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: false
+#        cluster: ""
+#        datacenter: ""
+        folder: "/"
+        name: "ubuntu-vm"
+        state: poweredon
+        guest_id: "ubuntu64Guest"
+        disk:
+          - size_gb: 40
+            type: thin
+            datastore: "datastore1"
+        hardware:
+          memory_mb: 8192
+          num_cpus: 4
+        networks:
+          - name: "LAN"
+        cdrom:
+          - type: "iso"
+            iso_path: "[datastore1] iso/ubuntu-24.04.1-live-server-amd64.iso"
+            controller_number: 0  # Add a valid controller number
+            unit_number: 0        # Set unit number
+        customization:
+          hostname: "ubuntu-vm"
+          domain: "localdomain"
+        wait_for_ip_address: yes
+
+      delegate_to: localhost
